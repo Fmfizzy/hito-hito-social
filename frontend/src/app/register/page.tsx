@@ -13,6 +13,7 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const router = useRouter();
   const { login } = useAuth();
   const { executeRecaptcha } = useRecaptcha();
@@ -22,6 +23,13 @@ export default function Register() {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setPasswordError('');
+
+    // Validate password length
+    if (password.length < 6) {
+      setPasswordError('Password must be at least 6 characters long');
+      return;
+    }
 
     try {
       const captchaToken = await executeRecaptcha('register');
@@ -95,8 +103,13 @@ export default function Register() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2"
+                  className={`mt-1 block w-full rounded-md border ${
+                    passwordError ? 'border-red-500' : 'border-gray-300'
+                  } shadow-sm p-2`}
                 />
+                {passwordError && (
+                  <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+                )}
               </div>
               <button
                 type="submit"
