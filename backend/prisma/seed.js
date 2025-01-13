@@ -7,7 +7,8 @@ async function main() {
   // Add dummy users
   const user1 = await prisma.user.create({
     data: {
-      name: 'John Doe',
+      username: 'johndoe',
+      fullName: 'John Doe',
       email: 'john@example.com',
       password: await bcrypt.hash('password123', 10),
       image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John'
@@ -16,7 +17,8 @@ async function main() {
 
   const user2 = await prisma.user.create({
     data: {
-      name: 'Jane Smith',
+      username: 'janesmith',
+      fullName: 'Jane Smith',
       email: 'jane@example.com',
       password: await bcrypt.hash('password123', 10),
       image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane'
@@ -25,7 +27,8 @@ async function main() {
 
   const user3 = await prisma.user.create({
     data: {
-      name: 'Alice Johnson',
+      username: 'alicej',
+      fullName: 'Alice Johnson',
       email: 'alice@example.com',
       password: await bcrypt.hash('password123', 10),
       image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice'
@@ -34,7 +37,8 @@ async function main() {
 
   const user4 = await prisma.user.create({
     data: {
-      name: 'Bob Wilson',
+      username: 'bobwilson',
+      fullName: 'Bob Wilson',
       email: 'bob@example.com',
       password: await bcrypt.hash('password123', 10),
       image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob'

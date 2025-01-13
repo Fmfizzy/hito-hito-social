@@ -23,14 +23,25 @@ const generateToken = (userId) => {
 
 const register = async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, username, fullName } = req.body;
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
+    // Check for existing email or username
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email },
+          { username }
+        ]
+      }
     });
 
     if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
+      if (existingUser.email === email) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
+      if (existingUser.username === username) {
+        return res.status(400).json({ error: 'Username already taken' });
+      }
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -40,7 +51,8 @@ const register = async (req, res) => {
       data: {
         email,
         password: hashedPassword,
-        name
+        username,
+        fullName
       }
     });
 
@@ -57,7 +69,8 @@ const register = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name
+        username: user.username,
+        fullName: user.fullName
       }
     });
   } catch (error) {
@@ -68,10 +81,15 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { login, password } = req.body; // login can be email or username
 
-    const user = await prisma.user.findUnique({
-      where: { email }
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: login },
+          { username: login }
+        ]
+      }
     });
 
     if (!user) {
@@ -96,7 +114,8 @@ const login = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        username: user.username,
+        fullName: user.fullName,
         image: user.image
       }
     });
@@ -115,7 +134,13 @@ const verifyToken = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
-      select: { id: true, email: true, name: true, image: true }
+      select: { 
+        id: true, 
+        email: true, 
+        username: true, 
+        fullName: true, 
+        image: true 
+      }
     });
 
     if (!user) {

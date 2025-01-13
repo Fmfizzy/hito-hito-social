@@ -8,7 +8,7 @@ import Toast from '../components/Toast';
 import { useRecaptcha } from '../hooks/useRecaptcha';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [loginInput, setLoginInput] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -39,7 +39,7 @@ export default function Login() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, captchaToken  }),
+        body: JSON.stringify({ login: loginInput, password, captchaToken }),
       });
 
       const data = await response.json();
@@ -66,15 +66,15 @@ export default function Login() {
             <h2 className="text-3xl font-bold text-center">Login</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email
+                <label htmlFor="login" className="block text-sm font-medium text-gray-700">
+                  Email or Username
                 </label>
                 <input
-                  id="email"
-                  type="email"
+                  id="login"
+                  type="text"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={loginInput}
+                  onChange={(e) => setLoginInput(e.target.value)}
                   className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2"
                 />
               </div>

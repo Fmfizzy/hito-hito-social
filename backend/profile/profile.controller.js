@@ -3,18 +3,18 @@ const profileService = require('./profile.service');
 async function updateProfile(req, res) {
   try {
     const { userId } = req.params;
-    const { name, image } = req.body;
+    const { fullName, image } = req.body;
 
     if (!userId) {
       return res.status(400).json({ error: 'User ID is required' });
     }
 
-    if (!name) {
-      return res.status(400).json({ error: 'Name is required' });
+    if (!fullName) {
+      return res.status(400).json({ error: 'Full name is required' });
     }
 
     const updatedUser = await profileService.updateUserProfile(userId, { 
-      name, 
+      fullName, 
       image: image || null 
     });
 
@@ -22,7 +22,7 @@ async function updateProfile(req, res) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json(updatedUser);
+    res.json({ user: updatedUser });
   } catch (error) {
     console.error('Profile update error:', error);
     if (error.code === 'P2025') {

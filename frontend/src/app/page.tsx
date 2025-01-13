@@ -8,13 +8,15 @@ interface Post {
   id: string;
   imageUrl: string;
   author: {
-    name: string;
+    username: string; 
+    fullName: string;
     image: string;
   };
   likes: {
     id: string;
     user: {
-      name: string;
+      username: string;
+      fullName: string;
       image: string;
     }
   }[];
@@ -81,11 +83,11 @@ export default function Home() {
 
       setPosts(posts.map(post => {
         if (post.id === postId) {
-          const userLiked = post.likes.some(like => like.user.name === user.name);
+          const userLiked = post.likes.some(like => like.user.username === user.username);
           if (userLiked) {
             return {
               ...post,
-              likes: post.likes.filter(like => like.user.name !== user.name)
+              likes: post.likes.filter(like => like.user.username !== user.username)
             };
           } else {
             return {
@@ -93,7 +95,8 @@ export default function Home() {
               likes: [...post.likes, { 
                 id: `temp-${Date.now()}`, 
                 user: { 
-                  name: user.name, 
+                  username: user.username,
+                  fullName: user.fullName,
                   image: user.image || defaultAvatar 
                 } 
               }]
@@ -108,9 +111,7 @@ export default function Home() {
     }
   };
 
-  const handleProfileUpdate = async (newName: string, newImageUrl: string) => {
-    console.log('Updating profile:', newName, newImageUrl);
-    console.log('User:', user);
+  const handleProfileUpdate = async (fullName: string, newImageUrl: string) => {
     if (!user) return;
     
     try {
@@ -122,7 +123,7 @@ export default function Home() {
           'Accept': 'application/json',
         },
         body: JSON.stringify({
-          name: newName,
+          fullName,
           image: newImageUrl,
         }),
       });
@@ -134,7 +135,6 @@ export default function Home() {
 
       const { user: updatedUser } = await response.json();
       updateUser(updatedUser);
-      console.log('Profile updated:', user.image);
       setIsProfileEditorOpen(false);
     } catch (error) {
       console.error('Error:', error);
@@ -203,10 +203,10 @@ export default function Home() {
                           onClick={() => handleLike(post.id)}
                           className="flex items-center gap-1 hover:text-red-500 transition-colors"
                         >
-                          <HeartIcon filled={user ? post.likes.some(like => like.user.name === user.name) : false} />
+                          <HeartIcon filled={user ? post.likes.some(like => like.user.username === user.username) : false} />
                           <span>{post.likes.length}</span>
                         </button>
-                        <span className="font-semibold">{post.author.name}</span>
+                        <span className="font-semibold">{post.author.fullName}</span>
                         <span className="text-gray-500 text-sm">
                           {formatTimeAgo(post.createdAt)}
                         </span>
@@ -228,14 +228,14 @@ export default function Home() {
             >
               <img
                 src={getUserImage()}
-                alt={user?.name || 'User'}
+                alt={user?.fullName || 'User'}
                 className="w-16 h-16 rounded-full hover:opacity-80 transition-opacity"
               />
               <div className="text-center">
                 <div className="font-semibold text-lg hover:opacity-80 transition-opacity">
-                  {user?.name}
+                  {user?.fullName}
                 </div>
-                <div className="text-gray-500">{user?.email}</div>
+                <div className="text-gray-500">@{user?.username}</div>
               </div>
             </div>
             {user && (
@@ -254,7 +254,7 @@ export default function Home() {
           isOpen={isProfileEditorOpen}
           onClose={() => setIsProfileEditorOpen(false)}
           onSave={handleProfileUpdate}
-          currentName={user.name}
+          currentFullName={user.fullName}
           currentImage={user.image || defaultAvatar}
         />
       )}
