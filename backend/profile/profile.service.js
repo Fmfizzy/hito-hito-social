@@ -11,7 +11,11 @@ async function updateUserProfile(userId, data) {
       }
     });
   } catch (error) {
-    console.error('Profile service error:', error);
+    if (error.code === 'P2025' || error.message.includes('Record to update not found')) {
+      const notFoundError = new Error('User not found');
+      notFoundError.code = 'P2025';
+      throw notFoundError;
+    }
     throw error;
   }
 }
