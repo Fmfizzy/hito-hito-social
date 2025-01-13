@@ -96,7 +96,8 @@ const login = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name
+        name: user.name,
+        image: user.image
       }
     });
   } catch (error) {
@@ -114,7 +115,7 @@ const verifyToken = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
-      select: { id: true, email: true, name: true }
+      select: { id: true, email: true, name: true, image: true }
     });
 
     if (!user) {

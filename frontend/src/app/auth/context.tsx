@@ -10,6 +10,7 @@ interface AuthContextType {
   login: (token: string, user: User) => void;
   logout: () => void;
   makeAuthenticatedRequest: (url: string, options?: RequestInit) => Promise<any>;
+  updateUser: (userData: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,7 +32,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           
           if (response.ok) {
             const { user } = await response.json();
+            localStorage.setItem('user', JSON.stringify(user));
             setUser(user);
+            console.log('User:', user);
           } else {
             localStorage.removeItem('user');
             router.push('/login');
@@ -94,12 +97,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push('/login');
   };
 
+  const updateUser = (userData: Partial<User>) => {
+    if (!user) return;
+    const updatedUser = { ...user, ...userData };
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    setUser(updatedUser);
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, makeAuthenticatedRequest }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      login, 
+      logout, 
+      makeAuthenticatedRequest,
+      updateUser 
+    }}>
       {children}
     </AuthContext.Provider>
   );

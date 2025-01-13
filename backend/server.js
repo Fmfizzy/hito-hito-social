@@ -34,6 +34,9 @@ app.use('/api/auth', authRoutes);
 // Posts routes
 app.use('/api/posts', postRoutes);
 
+// Add profile routes
+app.use('/api/users', profileRoutes);
+
 // Sample route
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from the backend!' });

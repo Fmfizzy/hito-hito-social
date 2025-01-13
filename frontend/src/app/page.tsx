@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from './auth/context';
+import ProfileEditor from './components/ProfileEditor';
 
 interface Post {
   id: string;
@@ -37,10 +38,11 @@ function formatTimeAgo(dateString: string): string {
 }
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
   const defaultAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=default";
@@ -103,6 +105,40 @@ export default function Home() {
     } catch (error) {
       console.error('Error:', error);
       setError('Failed to update like status');
+    }
+  };
+
+  const handleProfileUpdate = async (newName: string, newImageUrl: string) => {
+    console.log('Updating profile:', newName, newImageUrl);
+    console.log('User:', user);
+    if (!user) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/api/users/${user.id}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newName,
+          image: newImageUrl,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update profile');
+      }
+
+      const { user: updatedUser } = await response.json();
+      updateUser(updatedUser);
+      console.log('Profile updated:', user.image);
+      setIsProfileEditorOpen(false);
+    } catch (error) {
+      console.error('Error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update profile');
     }
   };
 
@@ -185,6 +221,7 @@ export default function Home() {
         <div className="sticky top-0 h-screen pt-10 flex items-start">
           <div 
             className="w-full flex flex-col items-center gap-3 cursor-pointer"
+            onClick={() => setIsProfileEditorOpen(true)}
           >
             <img
               src={getUserImage()}
@@ -200,6 +237,15 @@ export default function Home() {
           </div>
         </div>
       </div>
+      {user && (
+        <ProfileEditor
+          isOpen={isProfileEditorOpen}
+          onClose={() => setIsProfileEditorOpen(false)}
+          onSave={handleProfileUpdate}
+          currentName={user.name}
+          currentImage={user.image || defaultAvatar}
+        />
+      )}
     </main>
   );
 }
