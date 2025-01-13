@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; 
 
 interface ProfileEditorProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (name: string, imageUrl: string) => void;
-  currentName: string;
+  onSave: (fullName: string, imageUrl: string) => void;
+  currentFullName: string;
   currentImage: string;
 }
 
@@ -14,20 +14,26 @@ export default function ProfileEditor({
   isOpen,
   onClose,
   onSave,
-  currentName,
+  currentFullName,
   currentImage,
 }: ProfileEditorProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-  const [name, setName] = useState(currentName);
-  const [imageUrl, setImageUrl] = useState(currentImage);
+  const [fullName, setFullName] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setFullName(currentFullName);
+      setImageUrl(currentImage);
+    }
+  }, [isOpen, currentFullName, currentImage]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Remove the API_URL prefix if it exists
     const normalizedImageUrl = imageUrl.replace(API_URL, '');
-    onSave(name, normalizedImageUrl);
+    onSave(fullName, normalizedImageUrl);
   };
 
   return (
@@ -36,16 +42,17 @@ export default function ProfileEditor({
         <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Name
+            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+              Full Name
             </label>
             <input
               type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              id="fullName"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               required
+              placeholder="Enter your full name"
             />
           </div>
           <div className="mb-4">

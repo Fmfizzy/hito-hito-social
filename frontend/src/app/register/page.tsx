@@ -8,7 +8,8 @@ import Toast from '../components/Toast';
 import { useRecaptcha } from '../hooks/useRecaptcha';
 
 export default function Register() {
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -38,7 +39,13 @@ export default function Register() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password, captchaToken }),
+        body: JSON.stringify({ 
+          username, 
+          fullName, 
+          email, 
+          password, 
+          captchaToken 
+        }),
       });
 
       const data = await response.json();
@@ -67,15 +74,28 @@ export default function Register() {
             <h2 className="text-3xl font-bold text-center">Register</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Name
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                  Username
                 </label>
                 <input
-                  id="name"
+                  id="username"
                   type="text"
                   required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2"
+                />
+              </div>
+              <div>
+                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                  Full Name
+                </label>
+                <input
+                  id="fullName"
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2"
                 />
               </div>

@@ -18,16 +18,25 @@ jest.mock('@prisma/client', () => ({
           id: '1',
           imageUrl: 'test-image.jpg',
           author: {
-            name: 'Test User',
+            username: 'testuser',
+            fullName: 'Test User',
             image: 'test-avatar.jpg'
           },
-          likes: []
+          likes: [],
+          createdAt: new Date().toISOString()
         }
       ])
     },
     like: {
       findFirst: jest.fn().mockResolvedValue(null),
-      create: jest.fn().mockResolvedValue({ id: '1' }),
+      create: jest.fn().mockResolvedValue({ 
+        id: '1',
+        user: {
+          username: 'testuser',
+          fullName: 'Test User',
+          image: 'test-avatar.jpg'
+        }
+      }),
       delete: jest.fn()
     }
   }))
@@ -41,7 +50,8 @@ describe('Posts API', () => {
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBeTruthy();
       expect(response.body[0]).toHaveProperty('imageUrl');
-      expect(response.body[0]).toHaveProperty('author');
+      expect(response.body[0].author).toHaveProperty('username');
+      expect(response.body[0].author).toHaveProperty('fullName');
     });
   });
 

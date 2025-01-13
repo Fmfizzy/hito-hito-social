@@ -6,8 +6,15 @@ async function updateUserProfile(userId, data) {
     return await prisma.user.update({
       where: { id: userId },
       data: {
-        name: data.name,
+        fullName: data.fullName,
         image: data.image
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        fullName: true,
+        image: true
       }
     });
   } catch (error) {

@@ -11,7 +11,8 @@ class PostService {
             include: {
                 author: {
                     select: {
-                        name: true,
+                        username: true,
+                        fullName: true,
                         image: true
                     }
                 },
@@ -19,7 +20,8 @@ class PostService {
                     include: {
                         user: {
                             select: {
-                                name: true,
+                                username: true,
+                                fullName: true,
                                 image: true
                             }
                         }
