@@ -38,7 +38,7 @@ function formatTimeAgo(dateString: string): string {
 }
 
 export default function Home() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -220,20 +220,32 @@ export default function Home() {
         </div>
         <div className="sticky top-0 h-screen pt-10 flex items-start">
           <div 
-            className="w-full flex flex-col items-center gap-3 cursor-pointer"
-            onClick={() => setIsProfileEditorOpen(true)}
+            className="w-full flex flex-col items-center gap-3"
           >
-            <img
-              src={getUserImage()}
-              alt={user?.name || 'User'}
-              className="w-16 h-16 rounded-full hover:opacity-80 transition-opacity"
-            />
-            <div className="text-center">
-              <div className="font-semibold text-lg hover:opacity-80 transition-opacity">
-                {user?.name}
+            <div
+              onClick={() => setIsProfileEditorOpen(true)}
+              className="cursor-pointer flex flex-col items-center"
+            >
+              <img
+                src={getUserImage()}
+                alt={user?.name || 'User'}
+                className="w-16 h-16 rounded-full hover:opacity-80 transition-opacity"
+              />
+              <div className="text-center">
+                <div className="font-semibold text-lg hover:opacity-80 transition-opacity">
+                  {user?.name}
+                </div>
+                <div className="text-gray-500">{user?.email}</div>
               </div>
-              <div className="text-gray-500">{user?.email}</div>
             </div>
+            {user && (
+              <button
+                onClick={logout}
+                className="text-sm text-red-500 hover:text-red-700 transition-colors"
+              >
+                Logout
+              </button>
+            )}
           </div>
         </div>
       </div>

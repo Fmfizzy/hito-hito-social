@@ -34,7 +34,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const { user } = await response.json();
             localStorage.setItem('user', JSON.stringify(user));
             setUser(user);
-            console.log('User:', user);
           } else {
             localStorage.removeItem('user');
             router.push('/login');

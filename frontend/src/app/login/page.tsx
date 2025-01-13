@@ -41,54 +41,65 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-3xl font-bold text-center">Login</h2>
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            {error}
+    <div className="min-h-screen flex">
+      <div className="flex-[3] bg-cover bg-center" style={{ backgroundImage: "url('/login_bg.jpg')" }}>
+        <div className="min-h-screen flex items-center justify-center bg-black bg-opacity-50">
+          <div className="max-w-xl w-full space-y-8 p-8 bg-white/80 backdrop-blur-sm rounded-lg shadow-md">
+            <h2 className="text-3xl font-bold text-center">Login</h2>
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                {error}
+              </div>
+            )}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2"
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+              >
+                Login
+              </button>
+            </form>
+            <p className="text-center">
+              Don&apos;t have an account?{' '}
+              <Link href="/register" className="text-blue-500 hover:text-blue-600">
+                Register
+              </Link>
+            </p>
           </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2"
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-          >
-            Login
-          </button>
-        </form>
-        <p className="text-center">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-blue-500 hover:text-blue-600">
-            Register
-          </Link>
-        </p>
+        </div>
+      </div>
+      <div className="flex-[2] bg-white flex items-center">
+        <div className="ml-16">
+          <p className="text-3xl font-bold">Surge SE Internship</p>
+          <p className="text-3xl mt-2">January 2025</p>
+          <p className="text-3xl font-semibold mt-8"><i>Faizan Muthaliff</i></p>
+        </div>
       </div>
     </div>
   );
