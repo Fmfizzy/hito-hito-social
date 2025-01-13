@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   loading: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -24,7 +26,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initAuth = async () => {
       try {
         const storedUser = localStorage.getItem('user');
-        if (storedUser) {
+        const storedToken = localStorage.getItem('token');
+        if (storedUser && storedToken) {
           
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify`, {
             credentials: 'include' 
@@ -34,8 +37,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const { user } = await response.json();
             localStorage.setItem('user', JSON.stringify(user));
             setUser(user);
+            setToken(storedToken);
           } else {
             localStorage.removeItem('user');
+            localStorage.removeItem('token');
             router.push('/login');
           }
         }
@@ -57,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: {
           ...options.headers,
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         }
       });
 
@@ -76,9 +82,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = (_token: string, user: User) => {
-    localStorage.setItem('user', JSON.stringify(user));
-    setUser(user);
+  const login = (newToken: string, newUser: User) => {
+    setToken(newToken);
+    setUser(newUser);
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
   };
 
   const logout = async () => {
@@ -91,7 +99,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Logout error:', error);
     }
 
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
+    setToken(null);
     setUser(null);
     router.push('/login');
   };
@@ -110,6 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{ 
       user, 
+      token,
       loading, 
       login, 
       logout, 

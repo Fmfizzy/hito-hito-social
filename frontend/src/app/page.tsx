@@ -45,7 +45,7 @@ export default function Home() {
   const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-  const defaultAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=default";
+  const defaultAvatar = "https://api.dicebear.com/9.x/lorelei/svg";
 
   useEffect(() => {
     fetchPosts();

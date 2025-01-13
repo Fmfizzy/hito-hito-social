@@ -4,27 +4,34 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../auth/context';
+import Toast from '../components/Toast';
+import { useRecaptcha } from '../hooks/useRecaptcha';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const router = useRouter();
   const { login } = useAuth();
+  const { executeRecaptcha } = useRecaptcha();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
 
     try {
+      const captchaToken = await executeRecaptcha('register');
+
       const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, captchaToken }),
       });
 
       const data = await response.json();
@@ -33,8 +40,11 @@ export default function Register() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      login(data.token, data.user);
-      router.push('/');
+      setSuccess('Registration successful! Redirecting...');
+      setTimeout(() => {
+        login(data.token, data.user);
+        router.push('/');
+      }, 2000);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Registration failed');
     }
@@ -42,15 +52,12 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex">
+      {error && <Toast message={error} type="error" onClose={() => setError('')} />}
+      {success && <Toast message={success} type="success" onClose={() => setSuccess('')} />}
       <div className="flex-[3] bg-cover bg-center" style={{ backgroundImage: "url('/login_bg.jpg')" }}>
         <div className="min-h-screen flex items-center justify-center bg-black bg-opacity-50">
           <div className="max-w-xl w-full space-y-8 p-8 bg-white/80 backdrop-blur-sm rounded-lg shadow-md">
             <h2 className="text-3xl font-bold text-center">Register</h2>
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                {error}
-              </div>
-            )}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -108,10 +115,10 @@ export default function Register() {
         </div>
       </div>
       <div className="flex-[2] bg-white flex items-center">
-        <div className="space-y-4 ml-16">
-          <h1 className="text-3xl font-bold">Surge SE Internship</h1>
-          <p className="text-xl">January 2025</p>
-          <p className="text-lg font-semibold mt-8">YOUR NAME</p>
+        <div className="ml-16">
+          <p className="text-3xl font-bold">Surge SE Internship</p>
+          <p className="text-3xl mt-2">January 2025</p>
+          <p className="text-3xl font-semibold mt-8"><i>Faizan Muthaliff</i></p>
         </div>
       </div>
     </div>
