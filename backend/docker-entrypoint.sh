@@ -7,6 +7,7 @@ npx wait-on tcp:db:5432 -t 30000
 # Run Prisma migrations
 echo "Running database migrations..."
 npx prisma db push
+npx prisma db seed
 
 # Start the application
 echo "Starting the application..."

@@ -11,6 +11,7 @@ interface Post {
     image: string;
   };
   likes: {
+    id: string;
     user: {
       name: string;
       image: string;
@@ -62,6 +63,70 @@ export default function Home() {
     }
   };
 
+  const handleLike = async (postId: string) => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/api/posts/${postId}/toggle-like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: user.id }),
+      });
+
+      if (!response.ok) throw new Error('Failed to toggle like');
+
+      setPosts(posts.map(post => {
+        if (post.id === postId) {
+          const userLiked = post.likes.some(like => like.user.name === user.name);
+          if (userLiked) {
+            return {
+              ...post,
+              likes: post.likes.filter(like => like.user.name !== user.name)
+            };
+          } else {
+            return {
+              ...post,
+              likes: [...post.likes, { 
+                id: `temp-${Date.now()}`, 
+                user: { 
+                  name: user.name, 
+                  image: user.image || defaultAvatar 
+                } 
+              }]
+            };
+          }
+        }
+        return post;
+      }));
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Failed to update like status');
+    }
+  };
+
+  const HeartIcon = ({ filled }: { filled: boolean }) => (
+    <svg 
+      className={`w-6 h-6 transition-colors ${filled ? 'fill-red-500' : 'fill-none stroke-current'}`}
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+      />
+    </svg>
+  );
+
+  const getUserImage = () => {
+    if (!user) return defaultAvatar;
+    if (user.image?.startsWith('http')) return user.image;
+    return user.image ? `${API_URL}${user.image}` : defaultAvatar;
+  };
+
   return (
     <main className="bg-zinc-200 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-[250px_1fr_250px] gap-6">
@@ -98,8 +163,12 @@ export default function Home() {
                     </div>
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <button className="hover:text-red-500">
-                          ❤️ {post.likes.length}
+                        <button 
+                          onClick={() => handleLike(post.id)}
+                          className="flex items-center gap-1 hover:text-red-500 transition-colors"
+                        >
+                          <HeartIcon filled={user ? post.likes.some(like => like.user.name === user.name) : false} />
+                          <span>{post.likes.length}</span>
                         </button>
                         <span className="font-semibold">{post.author.name}</span>
                         <span className="text-gray-500 text-sm">
@@ -114,14 +183,18 @@ export default function Home() {
           )}
         </div>
         <div className="sticky top-0 h-screen pt-10 flex items-start">
-          <div className="w-full flex flex-col items-center gap-3">
+          <div 
+            className="w-full flex flex-col items-center gap-3 cursor-pointer"
+          >
             <img
-              src={user?.image || defaultAvatar}
+              src={getUserImage()}
               alt={user?.name || 'User'}
-              className="w-16 h-16 rounded-full"
+              className="w-16 h-16 rounded-full hover:opacity-80 transition-opacity"
             />
             <div className="text-center">
-              <div className="font-semibold text-lg">{user?.name}</div>
+              <div className="font-semibold text-lg hover:opacity-80 transition-opacity">
+                {user?.name}
+              </div>
               <div className="text-gray-500">{user?.email}</div>
             </div>
           </div>

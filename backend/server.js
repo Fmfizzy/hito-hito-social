@@ -6,6 +6,8 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { PrismaClient } = require('@prisma/client');
 const authRoutes = require('./auth/auth.routes');
+const postRoutes = require('./posts/posts.routes');
+const profileRoutes = require('./profile/profile.routes');
 
 const prisma = new PrismaClient();
 const app = express();
@@ -17,7 +19,7 @@ app.use(cors({
     ? process.env.FRONTEND_URL
     : 'http://localhost:3000',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['Set-Cookie']
 }));
@@ -29,40 +31,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Auth route
 app.use('/api/auth', authRoutes);
 
+// Posts routes
+app.use('/api/posts', postRoutes);
+
 // Sample route
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from the backend!' });
-});
-
-// Get all posts
-app.get('/api/posts', async (req, res) => {
-  try {
-    const posts = await prisma.post.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: {
-        author: {
-          select: {
-            name: true,
-            image: true
-          }
-        },
-        likes: {
-          include: {
-            user: {
-              select: {
-                name: true,
-                image: true
-              }
-            }
-          }
-        }
-      }
-    });
-    res.json(posts);
-  } catch (error) {
-    console.error('Failed to fetch posts:', error);
-    res.status(500).json({ error: 'Failed to fetch posts' });
-  }
 });
 
 app.use((err, req, res, next) => {
