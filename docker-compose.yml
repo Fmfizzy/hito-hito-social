@@ -3,7 +3,7 @@ services:
     image: postgres:15-alpine
     environment:
       POSTGRES_PASSWORD: example
-      POSTGRES_DB: task-db
+      POSTGRES_DB: dev-db
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
