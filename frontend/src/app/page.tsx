@@ -1,103 +1,132 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from './auth/context';
 
-interface Task {
+interface Post {
   id: string;
-  title: string;
+  imageUrl: string;
+  author: {
+    name: string;
+    image: string;
+  };
+  likes: {
+    user: {
+      name: string;
+      image: string;
+    }
+  }[];
+  createdAt: string;
+}
+
+function formatTimeAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+
+  if (weeks > 0) return `${weeks}w`;
+  if (days > 0) return `${days}d`;
+  if (hours > 0) return `${hours}h`;
+  if (minutes > 0) return `${minutes}m`;
+  return 'now';
 }
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { user } = useAuth();
+  const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [newTask, setNewTask] = useState('');
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
+  const defaultAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=default";
+
   useEffect(() => {
-    fetchTasks();
+    fetchPosts();
   }, []);
 
-  const fetchTasks = async () => {
+  const fetchPosts = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/tasks`);
-      if (!response.ok) throw new Error('Failed to fetch tasks');
+      const response = await fetch(`${API_URL}/api/posts`);
+      if (!response.ok) throw new Error('Failed to fetch posts');
       const data = await response.json();
-      setTasks(data);
+      setPosts(data);
     } catch (error) {
-      setError('Failed to load tasks. Please try again later.');
+      setError('Failed to load posts. Please try again later.');
       console.error('Error:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTask.trim()) return;
-
-    try {
-      const response = await fetch(`${API_URL}/api/tasks`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title: newTask }),
-      });
-
-      if (!response.ok) throw new Error('Failed to create task');
-      
-      const task = await response.json();
-      setTasks(prev => [task, ...prev]);
-      setNewTask('');
-    } catch (error) {
-      setError('Failed to create task. Please try again.');
-      console.error('Error:', error);
-    }
-  };
-
-  return(
-    <main className="bg-zinc-200 flex items-center flex-col pt-10 min-h-screen">
-      <h1 className="text-3xl font-bold mb-5">All tasks</h1>
-
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+  return (
+    <main className="bg-zinc-200 min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-[250px_1fr_250px] gap-6">
+        {/* Left sidebar with logo */}
+        <div className="sticky top-0 h-screen pt-10 flex items-start justify-center">
+          <div className="text-3xl font-bold">HitoHito</div>
         </div>
-      )}
 
-      {isLoading ? (
-        <div className="text-gray-600">Loading tasks...</div>
-      ) : (
-        <ul className="mt-5 space-y-3 w-full max-w-md">
-          {tasks.length === 0 ? (
-            <li className="text-gray-600 text-center">No tasks available</li>
-          ) : (
-            tasks.map((task) => (
-              <li key={task.id} className="text-xl bg-white p-3 rounded shadow-md">
-                {task.title}
-              </li>
-            ))
+        {/* Main content */}
+        <div className="flex flex-col items-center pt-10">
+          <h1 className="text-3xl font-bold mb-5">Feed</h1>
+
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 w-full">
+              {error}
+            </div>
           )}
-        </ul>
-      )}
 
-      <form onSubmit={handleSubmit} className="mt-10 flex space-x-2">
-        <input 
-          type="text" 
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-          placeholder="New task" 
-          className="h-10 px-3 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
-        />
-        <button 
-          type="submit" 
-          className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
-          disabled={!newTask.trim()}
-        >
-          Add Task
-        </button> 
-      </form>
+          {isLoading ? (
+            <div className="text-gray-600">Loading posts...</div>
+          ) : (
+            <div className="space-y-6 w-full">
+              {posts.length === 0 ? (
+                <div className="text-gray-600 text-center">No posts available</div>
+              ) : (
+                posts.map((post) => (
+                  <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div className="h-[500px] overflow-hidden">
+                      <img
+                        src={post.imageUrl}
+                        alt="Post"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <button className="hover:text-red-500">
+                          ❤️ {post.likes.length}
+                        </button>
+                        <span className="font-semibold">{post.author.name}</span>
+                        <span className="text-gray-500 text-sm">
+                          {formatTimeAgo(post.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+        <div className="sticky top-0 h-screen pt-10 flex items-start">
+          <div className="w-full flex flex-col items-center gap-3">
+            <img
+              src={user?.image || defaultAvatar}
+              alt={user?.name || 'User'}
+              className="w-16 h-16 rounded-full"
+            />
+            <div className="text-center">
+              <div className="font-semibold text-lg">{user?.name}</div>
+              <div className="text-gray-500">{user?.email}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
-  )
+  );
 }

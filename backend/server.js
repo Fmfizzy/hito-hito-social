@@ -34,34 +34,34 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from the backend!' });
 });
 
-// Get all tasks temp
-app.get('/api/tasks', async (req, res) => {
+// Get all posts
+app.get('/api/posts', async (req, res) => {
   try {
-    const tasks = await prisma.task.findMany({
-      orderBy: { createdAt: 'desc' }
+    const posts = await prisma.post.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        author: {
+          select: {
+            name: true,
+            image: true
+          }
+        },
+        likes: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                image: true
+              }
+            }
+          }
+        }
+      }
     });
-    res.json(tasks);
+    res.json(posts);
   } catch (error) {
-    console.error('Failed to fetch tasks:', error);
-    res.status(500).json({ error: 'Failed to fetch tasks' });
-  }
-});
-
-// Create new task temp
-app.post('/api/tasks', async (req, res) => {
-  try {
-    const { title } = req.body;
-    if (!title) {
-      return res.status(400).json({ error: 'Title is required' });
-    }
-    
-    const task = await prisma.task.create({
-      data: { title }
-    });
-    res.status(201).json(task);
-  } catch (error) {
-    console.error('Failed to create task:', error);
-    res.status(500).json({ error: 'Failed to create task' });
+    console.error('Failed to fetch posts:', error);
+    res.status(500).json({ error: 'Failed to fetch posts' });
   }
 });
 
