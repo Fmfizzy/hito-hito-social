@@ -25,7 +25,6 @@ export default function Register() {
     setSuccess('');
     setPasswordError('');
 
-    // Validate password length
     if (password.length < 6) {
       setPasswordError('Password must be at least 6 characters long');
       return;

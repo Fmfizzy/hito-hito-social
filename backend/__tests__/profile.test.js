@@ -28,7 +28,6 @@ jest.mock('@prisma/client', () => ({
 }));
 
 describe('Profile API', () => {
-  // Spy on console.error before tests
   let consoleErrorSpy;
   
   beforeEach(() => {

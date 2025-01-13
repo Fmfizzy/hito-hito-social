@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { User } from './types';
 import { useRouter } from 'next/navigation';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 interface AuthContextType {
   user: User | null;
@@ -114,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return  <LoadingSpinner />;
   }
 
   return (
