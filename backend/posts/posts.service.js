@@ -4,7 +4,10 @@ const prisma = new PrismaClient();
 class PostService {
     async getAllPosts() {
         return await prisma.post.findMany({
-            orderBy: { createdAt: 'desc' },
+            orderBy: [
+                { createdAt: 'desc' },
+                { likes: { _count: 'desc' } }
+            ],
             include: {
                 author: {
                     select: {
